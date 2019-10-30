@@ -14,7 +14,7 @@ zf = linspace(-5, 22, 10);
 attConst = 5;
 
 % repulsive constant
-repConst = 10;
+repConst = 1000;
 
 %% Plot obstacles
 %sphere center and radius
@@ -59,23 +59,43 @@ end
 % 
 repPotential = zeros(size(pointField, 1), 3);
 for i  = 1:size(obsCenters)
-    cent = obsCenters(i, :)
-    r = obsRadius(i)
-    repField = [];
+    i
+    cent = obsCenters(i, :);
+    r = obsRadius(i);
+    repField = zeros(size(pointField, 3));
+%     size(repField)
     for k = 1:size(pointField, 1)
         
         reppot = rep_components(repConst, pointField(k, :), cent, r);
-        repField = [repField; reppot];
+        for a = 1:3
+            repField(k,a) = reppot(a);
+        end
     end
     repPotential = repPotential + repField;
 end
+% repPotential = repPotential * 10;
+temp = repPotential .* 10
+% repPotential = repPotential * 10
+% potential = attPotential + repPotential*10;
+temp = normalize(temp) * 10;
+temp = temp * 10;
+temp2 = normalize(attPotential);
+potential = temp + attPotential;
+% potential = attPotential;
+% potential = repPotential;
+% potential = normalize(potential, 'range');
+x = pointField(:,1);
+y = pointField(:,2);
+z = pointField(:,3);
 
-potential = attPotential + repPotential*10;
-% potential = repPotential * 100;
-% potential = repPotential*100;
-potential = normalize(potential, 'range');
-
-quiver3(pointField(:,1), pointField(:,2), pointField(:,3), potential(:, 1), potential(:, 2), potential(:, 3))
+a = potential(:,1);
+b = potential(:,2);
+c = potential(:,3);
+a = a * 10;
+b = b * 10;
+c = c * 10;
+scale = 2;
+quiver3(x,y, z,a, b, c, scale);
 % quiver(pointField(:,1), pointField(:,2), potential(:, 1), potential(:, 2))
 % 
 % c = q.Color;
@@ -109,20 +129,29 @@ end
 
 % Repulsive forces
 function potential_components = rep_components(repConst, currPt, obs, radius)
-   syms x y z
 %    u_rep = 0.5 * ((repConst * radius)/((x-obs(1))^2 + (y-obs(2))^2 + (z-obs(3))^2));
-   u_rep = 0.5 *  ((repConst)/((x-obs(1))^2 + (y-obs(2))^2 + (z-obs(3))^2));
-   x_rep = -radius^2 *diff(u_rep, x);
-   y_rep = -radius^2 *diff(u_rep, y);
-   z_rep = -radius^2 *diff(u_rep, z);
+%    u_rep = 0.5 *  ((repConst)/((x-obs(1))^2 + (y-obs(2))^2 + (z-obs(3))^2));
+%    x_rep = -radius^2 *diff(u_rep, x);
+%    y_rep = -radius^2 *diff(u_rep, y);
+%    z_rep = -radius^2 *diff(u_rep, z);
+%    urep = 1/nu (1/distToObs - 1/obRadius)^2
    
-   x = currPt(1);
-   y = currPt(2);
-   z = currPt(3);
+    x_rep = -(repConst*(obs(1) - currPt(1))) * ((sqrt(obs(1) - currPt(1))^2 + (obs(2) - currPt(2))^2 + (obs(3) - currPt(3))^2) - radius);
+    x_rep = x_rep / (radius*((obs(1) - currPt(1))^2 + (obs(2) - currPt(2))^2 + (obs(3) - currPt(3))^2)^2);
+    y_rep = -(repConst*(obs(2) - currPt(2))) * ((sqrt(obs(1) - currPt(1))^2 + (obs(2) - currPt(2))^2 + (obs(3) - currPt(3))^2) - radius);
+    y_rep = y_rep / (radius*((obs(1) - currPt(1))^2 + (obs(2) - currPt(2))^2 + (obs(3) - currPt(3))^2)^2);
+    z_rep = -(repConst*(obs(3) - currPt(3))) * ((sqrt(obs(1) - currPt(1))^2 + (obs(2) - currPt(2))^2 + (obs(3) - currPt(3))^2) - radius);
+    z_rep = z_rep / (radius*((obs(1) - currPt(1))^2 + (obs(2) - currPt(2))^2 + (obs(3) - currPt(3))^2)^2);
+%     x_rep = radius^2 * ((2 * repConst * (currPt(1) - obs(1)))/((currPt(1) - obs(1))^2 + (currPt(2) - obs(2))^2 + (currPt(3) - obs(3))^2)^2);
+%     y_rep = radius^2 * ((2 * repConst * (currPt(2) - obs(2)))/((currPt(1) - obs(1))^2 + (currPt(2) - obs(2))^2 + (currPt(3) - obs(3))^2)^2);
+%     z_rep = radius^2 * ((2 * repConst * (currPt(3) - obs(3)))/((currPt(1) - obs(1))^2 + (currPt(2) - obs(2))^2 + (currPt(3) - obs(3))^2)^2);
+    x = currPt(1);
+    y = currPt(2);
+    z = currPt(3);
    
-   if currPt == obs
-      potential_components = [0 0 0];
-   else
-      potential_components = [double(subs(x_rep)) double(subs(y_rep)) double(subs(z_rep))]; 
-   end
+    if currPt == obs
+       potential_components = [0 0 0];
+    else
+       potential_components = [x_rep y_rep z_rep]; 
+    end
 end
