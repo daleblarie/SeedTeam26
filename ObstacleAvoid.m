@@ -134,6 +134,7 @@ function potential_components = rep_components(repConst, currPt, obs, radius)
 %    x_rep = -radius^2 *diff(u_rep, x);
 %    y_rep = -radius^2 *diff(u_rep, y);
 %    z_rep = -radius^2 *diff(u_rep, z);
+% https://www.robotshop.com/community/forum/t/artificial-potential-field-approach-and-its-problems/11821
 %    urep = 1/nu (1/distToObs - 1/obRadius)^2
    
     x_rep = -(repConst*(obs(1) - currPt(1))) * ((sqrt(obs(1) - currPt(1))^2 + (obs(2) - currPt(2))^2 + (obs(3) - currPt(3))^2) - radius);
