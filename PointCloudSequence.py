@@ -117,16 +117,12 @@ class MainWindow(QtWidgets.QMainWindow):
     #     self.hover = {'x': 1.0, 'y': 1.0, 'z': 0.0, 'yaw': 0.0, 'height': 0}
     #
         self.hoverTimer = QtCore.QTimer()
-    #     self.hoverTimer.timeout.connect(self.sendHoverCommand)
+        self.hoverTimer.timeout.connect(self.sendHoverCommand)
         self.hoverTimer.setInterval(100)
         self.hoverTimer.start()
     #
-    # def sendHoverCommand(self):
-    #     print(self.hover['x'], self.hover['y'], self.hover['height'],
-    #         self.hover['yaw'])
-    #     self.cf.commander.send_position_setpoint(
-    #         self.hover['x'], self.hover['y'], self.hover['height'],
-    #         self.hover['yaw'])
+    def sendHoverCommand(self, x, y, z ,yaw):
+        self.cf.commander.send_position_setpoint(x, y, z, yaw)
     #
     # def updateHover(self, k, v):
     #     if (k != 'height'):
@@ -144,16 +140,16 @@ class MainWindow(QtWidgets.QMainWindow):
             z = position[2] + self.initial_z
 
             for i in range(30):
-                self.cf.commander.send_position_setpoint(x, y, z, self.initial_yaw)
+                self.sendHoverCommand(x, y, z, self.initial_yaw)
                 time.sleep(0.1)
 
             if z > .3:
                 for yaw in np.linspace(0, 360, 100):
-                    self.cf.commander.send_position_setpoint(x, y, z, yaw)
+                    self.sendHoverCommand(x, y, z, yaw)
                     time.sleep(0.1)
 
             for i in range(10):
-                self.cf.commander.send_position_setpoint(x, y, z, 0)
+                self.sendHoverCommand(x, y, z, 0)
                 time.sleep(0.1)
 
         self.cf.commander.send_stop_setpoint()
