@@ -17,10 +17,10 @@ uri = 'radio://0/80/2M'
 # Change the sequence according to your setup
 #             x    y    z
 sequence = [
-    (1, 1, 1),
-    (1,1,0)
-
-    #(0, 0, 0.2),
+    (1, 1, 1, 0),
+    (2,1,1, 0),
+    (1,1,1,0),
+    (1,1,0,0),
 ]
 
 
@@ -65,13 +65,13 @@ def wait_for_position_estimator(scf):
                 break
 
 
-def set_initial_position(scf, x, y, z, yaw_deg):
-    scf.cf.param.set_value('kalman.initialX', x)
-    scf.cf.param.set_value('kalman.initialY', y)
-    scf.cf.param.set_value('kalman.initialZ', z)
+# def set_initial_position(scf, x, y, z, yaw_deg):
+#     scf.cf.param.set_value('kalman.initialX', x)
+#     scf.cf.param.set_value('kalman.initialY', y)
+#     scf.cf.param.set_value('kalman.initialZ', z)
 
-    yaw_radians = math.radians(yaw_deg)
-    scf.cf.param.set_value('kalman.initialYaw', yaw_radians)
+#     yaw_radians = math.radians(yaw_deg)
+#     scf.cf.param.set_value('kalman.initialYaw', yaw_radians)
 
 
 def reset_estimator(scf):
@@ -118,10 +118,11 @@ def run_sequence(scf, sequence):
     # Make sure that the last packet leaves before the link is closed
     # since the message queue is not flushed before closing
     time.sleep(0.1)
+
     
     
 def is_close(range):
-    MIN_DISTANCE = 0.1  # m
+    MIN_DISTANCE = 0.3  # m
 
     if range is None:
         return False
@@ -134,60 +135,22 @@ if __name__ == '__main__':
     #le = LoggingExample(available[0][0], 'drone1')
     cflib.crtp.init_drivers(enable_debug_driver=False)
 
-    
-    # Set these to the position and yaw based on how your Crazyflie is placed
-    # on the floor
-    initial_x = 1.0
-    initial_y = 1.0
-    initial_z = 0.0
-    initial_yaw = 90  # In degrees
-    # 0: positive X direction
-    # 90: positive Y direction
-    # 180: negative X direction
-    # 270: negative Y direction
 
 
     cf = Crazyflie(rw_cache='./cache')
-    # with SyncCrazyflie(URI, cf=cf) as scf:
-    #     with MotionCommander(scf) as motion_commander:
-    #         with Multiranger(scf) as multiranger:
-    #             keep_flying = True
-
-    #             while keep_flying:
-    #                 VELOCITY = 0.7
-    #                 velocity_x = 0.0
-    #                 velocity_y = 0.0
-
-    #                 if is_close(multiranger.front):
-    #                     velocity_x -= VELOCITY
-    #                 if is_close(multiranger.back):
-    #                     velocity_x += VELOCITY
-
-    #                 if is_close(multiranger.left):
-    #                     velocity_y -= VELOCITY
-    #                 if is_close(multiranger.right):
-    #                     velocity_y += VELOCITY
-
-    #                 if is_close(multiranger.up):
-    #                     keep_flying = False
-
-    #                 motion_commander.start_linear_motion(
-    #                     velocity_x, velocity_y, 0)
-
-    #                 time.sleep(0.1)
 
 
 
     with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
-        set_initial_position(scf, initial_x, initial_y, initial_z, initial_yaw)
-        reset_estimator(scf)
-        run_sequence(scf, sequence, initial_x, initial_y, initial_z, initial_yaw)
+        #set_initial_position(scf, initial_x, initial_y, initial_z, initial_yaw)
+        #run_sequence(scf, sequence)
+        
         with MotionCommander(scf) as motion_commander:
             with Multiranger(scf) as multiranger:
-                keep_flying = True
+                run_sequence(scf, sequence)
 
-                while keep_flying:
-                    VELOCITY = 0.2
+                while True:
+                    VELOCITY = 0.5
                     velocity_x = 0.0
                     velocity_y = 0.0
 
@@ -208,6 +171,10 @@ if __name__ == '__main__':
                         velocity_x, velocity_y, 0)
 
                     time.sleep(0.1)
+
+
+        #run_sequence(scf, sequence)
+       
         
         
         
