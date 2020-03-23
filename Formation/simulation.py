@@ -1,4 +1,5 @@
 import numpy as np
+import datetime
 import scipy.spatial.distance as distance
 import math
 import matplotlib.pyplot as plt
@@ -42,7 +43,7 @@ class SIMULATION():
             self.form.collision_input()
 
             #form.nodal_input()
-            # self.form.target_input()
+            self.form.target_input()
 
             self.form.update_agent_position()
             # form.update_nodal_position()
@@ -83,6 +84,8 @@ class SIMULATION():
         anim = FuncAnimation(fig, animate, init_func=init, frames=self.t_steps, interval=100, repeat=False)
 
         if save is True:
-            anim.save('formation.avi', writer=writer)
+            # fn = 'formation_' + str(datetime.datetime.now()) + '.avi'
+            fn = 'formation.avi'
+            anim.save(fn, writer=writer)
 
         plt.show()

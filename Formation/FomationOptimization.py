@@ -19,14 +19,14 @@ class INDIVIDUAL:
 
     def Start_Evaluation(self, pb=True, save=False):
         target = np.zeros((6, 1))
-        target[0, 0] = 400
+        target[0, 0] = 300
         target[1, 0] = 0
-        target[4, 0] = 0
+        target[4, 0] = 2
         # theta = 2*math.pi/3
         # theta = math.radians(36.87 * 2)
         N = c.N
-        # initialPos = np.random.randint(-5, 5, (2, N))
-        initialPos = np.asarray([[100, -2, -4, -6, -8], [0, 0, 0, 0, 0]])
+        # initialPos = np.random.randint(-10, 10, (2, N))
+        initialPos = np.asarray([[0, -20, 20, 0, 0], [0, 0, 0, 20, -20]])
 
         self.form = FORMATION(N, initialPos, target, k=self.k)
 
@@ -47,11 +47,12 @@ class INDIVIDUAL:
 
         # dist_mask = np.where(self.sim.target_dist > self.form.r_tau)
         # nearTarget = sum(np.transpose(self.sim.target_dist))/len(self.sim.target_dist)
-        nearTarget = abs(self.sim.target_dist[:, -1] - self.form.r_tau)
+        nearTarget = sum(self.sim.target_dist[:, -1] - self.form.r_tau)/len(self.sim.target_dist[0, :])
 
         too_close = np.where(self.sim.agent_dist < self.form.r_r)
+        # too_far = np.where(self.sim.agent_dist > 100)
         # nearAgent = sum(self.sim.agent_dist[too_close]) /len(too_close)
-        nearAgent = len(too_close[0])
+        nearAgent = len(too_close[0])# + len(too_far[0])
 
         self.fitness = ((nearNode) - (nearAgent)) + (1 - nearTarget)
         # self.fitness = (1 - nearTarget)
