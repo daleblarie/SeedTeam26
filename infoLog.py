@@ -215,8 +215,8 @@ class LoggingExample:
 
         # Start a timer to disconnect in 10s
         self.connected = True
-        t = Timer(5, self._cf.close_link)
-        t.start()
+        # t = Timer(5, self._cf.close_link)
+        # t.start()
 
     def _stab_log_error(self, logconf, msg):
         """Callback from the log API when an error occurs"""
