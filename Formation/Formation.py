@@ -25,7 +25,7 @@ class FORMATION:
         self.r_t = 70
         self.r_tau = 60
         # attractive radius
-        self.r_a = 5
+        self.r_a = 10
         self.dist = 50
 
     def leader_selection(self, target):

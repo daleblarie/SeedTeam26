@@ -40,7 +40,7 @@ class INDIVIDUAL:
         self.sim.run(pb=pb, save=save)
 
     def Compute_Fitness(self):
-        node_close = np.where(self.sim.agent_dist < self.form.r_a)
+        node_close = np.where(self.sim.node_dist < self.form.r_a)
         # node_close = np.argmin(self.sim.node_dist, axis=0)
         # nearNode = sum(self.sim.node_dist[node_close[0], node_close[1]]) / len(node_close[0])
         nearNode = len(node_close[0])
@@ -53,7 +53,7 @@ class INDIVIDUAL:
         # nearAgent = sum(self.sim.agent_dist[too_close]) /len(too_close)
         nearAgent = len(too_close[0])
 
-        self.fitness = (nearNode)
+        self.fitness = ((nearNode) - (nearAgent)) + (1 - nearTarget)
         # self.fitness = (1 - nearTarget)
 
         del self.form

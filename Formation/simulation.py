@@ -38,8 +38,8 @@ class SIMULATION():
                 self.form.V_Formation(2*math.pi/3)
 
             self.form.position_input()
-            # self.form.target_tracking_input()
-            # self.form.collision_input()
+            self.form.target_tracking_input()
+            self.form.collision_input()
 
             #form.nodal_input()
             # self.form.target_input()
