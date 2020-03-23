@@ -108,8 +108,8 @@ def set_initial_position(scf, x, y, z, yaw_deg):
     scf.cf.param.set_value('kalman.initialY', y)
     scf.cf.param.set_value('kalman.initialZ', z)
 
-    yaw_radians = math.radians(yaw_deg)
-    scf.cf.param.set_value('kalman.initialYaw', yaw_radians)
+    # yaw_radians = math.radians(yaw_deg)
+    # scf.cf.param.set_value('kalman.initialYaw', yaw_radians)
 
 
 def reset_estimator(scf):

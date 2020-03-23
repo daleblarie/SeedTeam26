@@ -117,7 +117,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #     self.hover = {'x': 1.0, 'y': 1.0, 'z': 0.0, 'yaw': 0.0, 'height': 0}
     #
         self.hoverTimer = QtCore.QTimer()
-        self.hoverTimer.timeout.connect(self.sendHoverCommand)
+        # self.hoverTimer.timeout.connect(self.sendHoverCommand(self.initial_x, self.initial_y, self.initial_z, self.initial_yaw))
         self.hoverTimer.setInterval(100)
         self.hoverTimer.start()
     #
@@ -140,17 +140,17 @@ class MainWindow(QtWidgets.QMainWindow):
             z = position[2] + self.initial_z
 
             for i in range(30):
-                self.sendHoverCommand(x, y, z, self.initial_yaw)
+                self.sendHoverCommand(x, y, z, position[3])
                 time.sleep(0.1)
 
-            if z > .3:
-                for yaw in np.linspace(0, 360, 100):
-                    self.sendHoverCommand(x, y, z, yaw)
-                    time.sleep(0.1)
+            # if z > .3:
+            #     for yaw in np.linspace(0, 360, 100):
+            #         self.sendHoverCommand(x, y, z, yaw)
+            #         time.sleep(0.1)
 
-            for i in range(10):
-                self.sendHoverCommand(x, y, z, 0)
-                time.sleep(0.1)
+            # for i in range(10):
+            #     self.sendHoverCommand(x, y, z, 0)
+            #     time.sleep(0.1)
 
         self.cf.commander.send_stop_setpoint()
         # Make sure that the last packet leaves before the link is closed
@@ -273,8 +273,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cf.param.set_value('kalman.initialY', self.initial_y)
         self.cf.param.set_value('kalman.initialZ', self.initial_z)
 
-        yaw_radians = math.radians(self.initial_yaw)
-        self.cf.param.set_value('kalman.initialYaw', yaw_radians)
+        # yaw_radians = math.radians(self.initial_yaw)
+        # self.cf.param.set_value('kalman.initialYaw', yaw_radians)
 
     def reset_estimator(self):
         self.cf.param.set_value('kalman.resetEstimation', '1')
@@ -327,12 +327,22 @@ class Canvas(scene.SceneCanvas):
             # (1.3, 1.3, 0.4),
             # (0, 1.3, 0.4),
             # (0, 0, 0.4),
-            (0, 0, .8),
-            (1.3, 0, .8),
-            (1.3, 1.3, .8),
-            (0, 1.3, .8),
-            (0, 0, .8),
-            (0, 0, 0.2)
+            (0, 0, .4, 0),
+            (1.3, 0, .4, 0),
+            (1.3, 1.3, .4, 0),
+            (0, 1.3, .4, 0),
+            (0, 0, .4, 0),
+            (0, 0, .8, 0),
+            (1.3, 0, .8, 0),
+            (1.3, 1.3, .8, 0),
+            (0, 1.3, .8, 0),
+            (0, 0, .8, 0),
+            (0, 0, 1.2, 0),
+            (1.3, 0, 1.2, 0),
+            (1.3, 1.3, 1.2, 0),
+            (0, 1.3, 1.2, 0),
+            (0, 0, 1.2, 0),
+            (0, 0, 0.2, 0)
         ]
 
         if (not event.native.isAutoRepeat()):
