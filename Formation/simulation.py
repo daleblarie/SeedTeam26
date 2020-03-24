@@ -1,4 +1,7 @@
 import numpy as np
+import json
+import constants as c
+from Formation2D import FORMATION
 import datetime
 import scipy.spatial.distance as distance
 import math
@@ -17,6 +20,8 @@ class SIMULATION():
         self.node_pos = np.zeros((2, form.N, t_steps))
         self.agent_pos = np.zeros((2, form.N, t_steps))
 
+        self.active_nodes = np.zeros((1, t_steps))
+
         self.target_dist = np.zeros((1, t_steps))
         self.node_dist = np.zeros((form.N, t_steps * form.N))
         self.agent_dist = np.zeros((form.N, t_steps * form.N))
@@ -31,7 +36,6 @@ class SIMULATION():
 
         for t in range(self.t_steps):
             dist = np.linalg.norm(self.form.agents[:2, self.form.leader] - self.form.target[:2, 0], axis=0)
-            self.form.check_active_nodes()
 
             if dist <= self.form.r_t:
                 self.form.circular_formation()
@@ -40,18 +44,23 @@ class SIMULATION():
 
             self.form.position_input()
             self.form.target_tracking_input()
-            self.form.collision_input()
+            # self.form.collision_input()
+
 
             #form.nodal_input()
-            self.form.target_input()
+            # self.form.target_input()
 
-            self.form.update_agent_position()
+            # self.form.update_agent_position()
             # form.update_nodal_position()
             self.form.update_target_position()
+
+            self.form.check_active_nodes()
 
             self.target_pos[:, t] = self.form.target[:2, 0]
             self.node_pos[:, :, t] = self.form.nodes[:2, :]
             self.agent_pos[:, :, t] = self.form.agents[:2, :]
+
+            self.active_nodes[:, t] = sum(self.form.nodes[6, :])/self.form.N
 
             self.target_dist[:, t] = np.linalg.norm(self.form.agents[:2, self.form.leader] - self.form.target[:2, 0], axis=0)
             self.node_dist[:, t * self.form.N:(t+1)*self.form.N] = distance.cdist(np.transpose(self.form.agents[:2, :]),  np.transpose(self.form.nodes[:2, :]), 'euclidean')
@@ -89,3 +98,26 @@ class SIMULATION():
             anim.save(fn, writer=writer)
 
         plt.show()
+
+if __name__ == '__main__':
+    fileName = 'Formation_bestC0nstants.txt'
+    with open(fileName, 'r') as json_file:
+        last_line = json_file.readlines()[-1]
+        k = json.loads(last_line)
+
+    k = {int(k): v for k, v in k['k'].items()}
+
+    N = c.N
+    # initialPos = np.random.randint(-10, 10, (2, N))
+    initialPos = np.asarray([[0, -20, 20, 0, 0], [0, 0, 0, 20, -20]])
+
+    form = FORMATION(N, initialPos, c.target, k=k)
+
+    # theta = self.form.theta_min()
+    # self.form.V_Formation(theta, target)
+    # self.form.circular_formation()
+
+    # form.nodal_input()
+    sim = SIMULATION(form, c.timeSteps)
+
+    sim.run(pb=False, save=False)

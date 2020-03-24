@@ -1,4 +1,6 @@
 from FomationOptimization import INDIVIDUAL
+import constants as c
+import datetime
 import copy
 import random
 import json
@@ -76,5 +78,14 @@ class POPULATION:
 
         if save:
             fileName = 'Formation_bestC0nstants.txt'
-            with open(fileName, 'w') as json_file:
-                json.dump(self.p[best].k, json_file)
+            json_file = open(fileName, 'a')
+            txt = {'TimeStamp': str(datetime.datetime.now()),
+                   'k': self.p[best].k}
+                   # 'simInfor': {'numGens': c.numGens,
+                   #              'popSize': c.popSize,
+                   #              'N': c.N,
+                   #              'timeSteps': c.timeSteps,
+                   #              'target': c.target}}
+            json.dump(txt, json_file)
+            json_file.write('\n')
+            json_file.close()

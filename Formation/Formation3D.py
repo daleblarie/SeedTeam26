@@ -6,9 +6,9 @@ class FORMATION:
     def __init__(self, numAgents, InitialPos, targetInit, k):
         self.N = numAgents
         self.target = targetInit
-        self.nodes = np.zeros((7, self.N))
-        self.agents = np.zeros((7, self.N))
-        self.agents[:2, :] = InitialPos
+        self.nodes = np.zeros((10, self.N))
+        self.agents = np.zeros((9, self.N))
+        self.agents[:3, :] = InitialPos
 
         self.leader = self.leader_selection(targetInit)
         # self.nodes[:2, self.leader] = np.zeros(2)
@@ -23,15 +23,15 @@ class FORMATION:
 
         self.r_r = 20
         self.r_t = 70
-        self.r_tau = 60
+        self.r_tau = 50
         # attractive radius
         self.r_a = 10
-        self.dist = 50
+        self.dist = 30
 
     def leader_selection(self, target):
-        dist = np.linalg.norm(self.agents[:2, :] - target[:2, :], axis=0)
+        dist = np.linalg.norm(self.agents[:3, :] - target[:3, :], axis=0)
         ind = np.argmin(dist)
-        self.nodes[6, 0] = 1
+        self.nodes[10, 0] = 1
         return ind
 
     def rotation(self, theta, direction='cw'):
@@ -45,20 +45,20 @@ class FORMATION:
         return R.reshape(2, 2)
 
     def update_target_position(self):
-        self.target[:2, :] += self.target[2:4, :]
-        self.target[2:4, :] += self.target[4:6, :]
-        self.target[4:6, :] = np.zeros((2, 1))
+        self.target[:3, :] += self.target[3:6, :]
+        self.target[3:6, :] += self.target[6:9, :]
+        self.target[3:9, :] = np.zeros((3, 1))
 
     def target_input(self, input=np.asarray([[0], [0]])):
-        self.target[4:6, :] = input
+        self.target[3:9, :] = input
 
     def update_agent_position(self):
-        self.agents[:2, :] += self.agents[2:4, :]
-        self.agents[2:4, :] += self.agents[4:6, :]
+        self.agents[:3, :] += self.agents[3:6, :]
+        self.agents[3:6, :] += self.agents[6:9, :]
 
     def update_nodal_position(self):
-        self.nodes[:2, :] += self.nodes[2:4, :]
-        self.nodes[2:4, :] += self.nodes[4:6, :]
+        self.nodes[:3, :] += self.nodes[3:6, :]
+        self.nodes[3:6, :] += self.nodes[6:9, :]
 
     def nodal_input(self):
          # dist = np.linalg.norm(self.target[:2, :] - self.nodes[:2, [0]])
@@ -70,18 +70,18 @@ class FORMATION:
          #     ft = -self.k['t'][0] * n
          #
          # self.nodes[4:6, :] += ft - self.k['v'][1] * (self.nodes[2:4, [0]] - self.target[2:4, :]) + self.target[4:6, :]
-         self.nodes[4:6, :] = self.agents[4:6, [self.leader]] * np.ones((2, self.N))
+         self.nodes[6:9, :] = self.agents[3:9, [self.leader]] * np.ones((3, self.N))
 
     def theta_min(self):
         return math.acos(1-(self.r_r**2)/(2*self.dist**2))
 
     def rotation_leater_target(self):
-        vec1 = (self.target[:2, :] - self.agents[:2, [self.leader]]) / (
-            np.linalg.norm(self.target[:2, :] - self.agents[:2, [self.leader]]))
+        vec1 = (self.target[:3, :] - self.agents[:3, [self.leader]]) / (
+            np.linalg.norm(self.target[:3, :] - self.agents[:2, [self.leader]]))
         vec2 = np.array([[1], [0]])
 
-        vec1 = vec1.reshape(2, )
-        vec2 = vec2.reshape(2, )
+        vec1 = vec1.reshape(3, )
+        vec2 = vec2.reshape(3, )
 
         dot_product = np.dot(vec1, vec2)
         # dot_product = vec1 * vec2

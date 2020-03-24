@@ -1,4 +1,4 @@
-from Formation import FORMATION
+from Formation2D import FORMATION
 from simulation import SIMULATION
 import constants as c
 import numpy as np
@@ -18,17 +18,13 @@ class INDIVIDUAL:
         self.form = None
 
     def Start_Evaluation(self, pb=True, save=False):
-        target = np.zeros((6, 1))
-        target[0, 0] = 300
-        target[1, 0] = 0
-        target[4, 0] = 2
         # theta = 2*math.pi/3
         # theta = math.radians(36.87 * 2)
         N = c.N
         # initialPos = np.random.randint(-10, 10, (2, N))
         initialPos = np.asarray([[0, -20, 20, 0, 0], [0, 0, 0, 20, -20]])
 
-        self.form = FORMATION(N, initialPos, target, k=self.k)
+        self.form = FORMATION(N, initialPos, c.target, k=self.k)
 
         # theta = self.form.theta_min()
         # self.form.V_Formation(theta, target)
@@ -43,18 +39,43 @@ class INDIVIDUAL:
         node_close = np.where(self.sim.node_dist < self.form.r_a)
         # node_close = np.argmin(self.sim.node_dist, axis=0)
         # nearNode = sum(self.sim.node_dist[node_close[0], node_close[1]]) / len(node_close[0])
-        nearNode = len(node_close[0])
+        nearNode = len(node_close[0])/self.sim.node_dist.shape[1]
+
+        # all_active = np.where(self.sim.active_nodes == 1.0)
+        # if len(all_active[0]) > 0:
+        #     first_active = all_active[0][0]/c.timeSteps
+        # else:
+        #     first_ative = 0
+
+        all_active = sum(self.sim.active_nodes[0, :])/c.timeSteps
+        # print(self.form.nodes[6, :])
+
+        end_active = sum(self.form.nodes[6, :])/c.N
+        if end_active != 1:
+            end_active = 0
+
+        # if all_active == 1.0:
+        #     all_active += 1
+        # print(nearNode, all_active, self.sim.active_nodes[0, -1])
 
         # dist_mask = np.where(self.sim.target_dist > self.form.r_tau)
         # nearTarget = sum(np.transpose(self.sim.target_dist))/len(self.sim.target_dist)
         nearTarget = sum(self.sim.target_dist[:, -1] - self.form.r_tau)/len(self.sim.target_dist[0, :])
 
-        too_close = np.where(self.sim.agent_dist < self.form.r_r)
+        agent_close = np.where(self.sim.agent_dist < self.form.r_r)
         # too_far = np.where(self.sim.agent_dist > 100)
         # nearAgent = sum(self.sim.agent_dist[too_close]) /len(too_close)
-        nearAgent = len(too_close[0])# + len(too_far[0])
+        nearAgent = ((len(agent_close[0]) - self.sim.agent_dist.shape[1])/(self.sim.agent_dist.size - self.sim.agent_dist.shape[1])) + 1
 
-        self.fitness = ((nearNode) - (nearAgent)) + (1 - nearTarget)
+        if nearAgent == 0:
+            nearAgent -= 1.0
+
+        # print(nearAgent)
+
+        # print(nearNode, all_active, self.sim.active_nodes[0, -1], nearAgent)
+
+        # self.fitness = (nearNode)  * (all_active)  * (2 - nearAgent) + end_active#* (1 - nearTarget)
+        self.fitness = (nearNode) * (all_active) + end_active
         # self.fitness = (1 - nearTarget)
 
         del self.form
