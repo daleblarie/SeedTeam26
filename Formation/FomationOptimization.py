@@ -22,6 +22,7 @@ class INDIVIDUAL:
         # theta = math.radians(36.87 * 2)
         N = c.N
         # initialPos = np.random.randint(-10, 10, (2, N))
+        # print(self.k)
         initialPos = np.asarray([[0, -20, 20, 0, 0], [0, 0, 0, 20, -20]])
 
         self.form = FORMATION(N, initialPos, c.target, k=self.k)
@@ -58,9 +59,15 @@ class INDIVIDUAL:
         #     all_active += 1
         # print(nearNode, all_active, self.sim.active_nodes[0, -1])
 
-        # dist_mask = np.where(self.sim.target_dist > self.form.r_tau)
+        # target_close = np.where((self.sim.target_dist - self.form.r_tau) > 5)
+        diff = (self.sim.target_dist[0, :] - self.form.r_tau)
+        # nearTarget = sum((diff - min(diff))/(max(diff) - min(diff)))/diff.shape[0]
+        # nearTarget = len(target_close[0]) / self.sim.target_dist.shape[1]
         # nearTarget = sum(np.transpose(self.sim.target_dist))/len(self.sim.target_dist)
-        nearTarget = sum(self.sim.target_dist[:, -1] - self.form.r_tau)/len(self.sim.target_dist[0, :])
+        nearTarget = self.sim.target_dist[0, -1]
+        # print(nearTarget)
+
+        # print(nearTarget, self.sim.target_dist[0, -1])
 
         agent_close = np.where(self.sim.agent_dist < self.form.r_r)
         # too_far = np.where(self.sim.agent_dist > 100)
@@ -71,14 +78,15 @@ class INDIVIDUAL:
             nearAgent -= 1.0
 
         # print(nearAgent)
-
+        # print('Form',self.sim.target_dist)
         # print(nearNode, all_active, self.sim.active_nodes[0, -1], nearAgent)
 
         # self.fitness = (nearNode)  * (all_active)  * (2 - nearAgent) + end_active#* (1 - nearTarget)
-        self.fitness = (nearNode) * (all_active) + end_active
-        # self.fitness = (1 - nearTarget)
+        self.fitness = (nearNode) * (all_active) * (1-abs(nearTarget-self.form.r_tau)) * (2 - nearAgent) + end_active
+        # self.fitness = (1-abs(nearTarget-self.form.r_tau))
 
         del self.form
+        del self.sim
 
     def Mutate(self):
         geneToMutate_i = random.randint(0, len(self.k)-1)

@@ -47,6 +47,8 @@ class POPULATION:
         fitnesses = [other.p[i].fitness for i in other.p]
         best = fitnesses.index(max(fitnesses))
 
+        # print(other.p[best].k)
+
         self.p[0] = other.p[best]
 
     def Collect_Children_From(self, other):

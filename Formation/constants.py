@@ -1,14 +1,14 @@
 import numpy as np
 
-numGens = 100
-popSize = 10
+numGens = 500
+popSize = 20
 N = 5
-timeSteps = 300
+timeSteps = 100
 
 # 2D Formation
 target = np.zeros((6, 1))
 # initial target position
-target[0, 0] = 200
+target[0, 0] = 150
 target[1, 0] = 0
 # initial target input
-target[4, 0] = 2
+target[4, 0] = 1

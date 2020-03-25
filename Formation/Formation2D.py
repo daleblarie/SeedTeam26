@@ -1,11 +1,12 @@
 import numpy as np
 import math
+import copy
 
 
 class FORMATION:
     def __init__(self, numAgents, InitialPos, targetInit, k):
         self.N = numAgents
-        self.target = targetInit
+        self.target = copy.copy(targetInit)
         self.nodes = np.zeros((7, self.N))
         self.agents = np.zeros((7, self.N))
         self.agents[:2, :] = InitialPos
@@ -198,7 +199,7 @@ class FORMATION:
         n = (self.agents[:2, [self.leader]] - self.target[:2, :]) / dist
 
         if dist < self.r_t:
-            ft = (((1/dist) - (1/self.r_tau)) * (self.k[2][1]/dist**2) - (self.k[2][2]*(dist - self.r_tau))/(self.r_t - self.r_tau)) * n
+            ft = (((1/dist) - (1/self.r_tau)) * (self.k[2][1]/(dist**2)) - (self.k[2][2]*(dist - self.r_tau))/(self.r_t - self.r_tau)) * n
         else:
             ft = -self.k[2][0] * n
 
