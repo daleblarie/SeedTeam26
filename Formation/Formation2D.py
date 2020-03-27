@@ -8,10 +8,11 @@ class FORMATION:
         self.N = numAgents
         self.target = copy.copy(targetInit)
         self.nodes = np.zeros((7, self.N))
-        self.agents = np.zeros((7, self.N))
+        self.agents = np.zeros((6, self.N))
         self.agents[:2, :] = InitialPos
 
-        self.leader = self.leader_selection(targetInit)
+        self.leader = None
+        self.leader_selection()
         # self.nodes[:2, self.leader] = np.zeros(2)
 
         # self.k = {'k': [.1, .05], 'o': [90, 15], 't': [1, 0.6, 4], 'j': [.1, .4, 1], 'v': [.7, 1.2, 0.2]}
@@ -27,13 +28,13 @@ class FORMATION:
         self.r_tau = 50
         # attractive radius
         self.r_a = 10
-        self.dist = 30
+        self.dist = 80
 
-    def leader_selection(self, target):
-        dist = np.linalg.norm(self.agents[:2, :] - target[:2, :], axis=0)
+    def leader_selection(self):
+        dist = np.linalg.norm(self.agents[:2, :] - self.target[:2, :], axis=0)
         ind = np.argmin(dist)
         self.nodes[6, 0] = 1
-        return ind
+        self.leader = ind
 
     def rotation(self, theta, direction='cw'):
 
@@ -143,11 +144,11 @@ class FORMATION:
 
         for i in np.arange(self.N):
             if i != self.leader:
-                dist = np.linalg.norm(self.agents[:2, [i]] - self.nodes[:2, 1:], axis=0)
+                dist = np.linalg.norm(self.agents[:2, [i]] - self.nodes[:2, :], axis=0)
                 ind = np.argmin(dist)
                 dist = dist[ind]
 
-                ind += 1
+                # ind += 1
 
                 if dist <= self.r_a and self.nodes[6, ind-1] == 1:
                     input[:, i] = -self.k[3][0]*(self.agents[:2, i] - self.nodes[:2, ind]) - self.k[4][0]*(self.agents[2:4, i]-self.nodes[2:4, ind]) + self.nodes[4:6, ind]
@@ -181,15 +182,18 @@ class FORMATION:
         input = np.zeros((2, self.N))
         for i in range(self.N):
             ui = 0
-            for k in range(self.N):
+            col = np.hstack((self.agents, self.target))
+            for k in range(self.N+1):
                 if i != k & i != self.leader & k != self.leader:
-                    dist = np.linalg.norm(self.agents[:2, i] - self.agents[:2, k], axis=0)
-                    norm = (self.agents[:2, i] - self.agents[:2, k]) / dist
+                    dist = np.linalg.norm(self.agents[:2, i] - col[:2, k], axis=0)
+                    norm = (self.agents[:2, i] - col[:2, k]) / dist
 
-                    c = 1
+                    c = 0
+                    if dist <= self.r_r:
+                        c = 1
 
                     fk = (((1/dist) - (1/self.r_r)) * (self.k[0][0]/(dist**2)) - self.k[0][1] * (dist - self.r_r)) * c * norm
-                    ui += (fk - c*self.k[4][2]*(self.agents[2:4, i] - self.agents[2:4, k]))
+                    ui += (fk - c*self.k[4][2]*(self.agents[2:4, i] - col[2:4, k]))
 
                     input[:, i] = ui
         self.agents[4:6, :] += input

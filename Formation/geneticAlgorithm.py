@@ -3,9 +3,18 @@ import constants as c
 import copy
 import pickle
 import matplotlib.pyplot as plt
+import json
+
+fileName = 'Formation_bestC0nstants.txt'
+with open(fileName, 'r') as json_file:
+    last_line = json_file.readlines()[-1]
+    k = json.loads(last_line)
+
+k = {int(k): v for k, v in k['k'].items()}
+
 
 parents = POPULATION(c.popSize)
-parents.Initilize()
+parents.Initilize(k)
 parents.Evaluate(pb=True)
 # # exit()
 print(0, end=' ')

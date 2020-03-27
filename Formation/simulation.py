@@ -27,14 +27,16 @@ class SIMULATION():
         self.node_dist = np.zeros((form.N, t_steps * form.N))
         self.agent_dist = np.zeros((form.N, t_steps * form.N))
 
-    def run(self, pb=False, save=False):
+    def run(self, pb=False, save=False, fn='formation.avi'):
+
         self.run_simulation()
         # print('Sim target', self.target_dist[:2, -1])
         # print('Sim leader', self.agent_pos[:2, 2, 0], self.agent_pos[:2, 2, -1])
         if pb is False:
-            self.run_animation(save)
+            self.run_animation(save, fn)
 
     def run_simulation(self):
+
 
         for t in range(self.t_steps):
             dist = np.linalg.norm(self.form.agents[:2, self.form.leader] - self.form.target[:2, 0], axis=0)
@@ -46,7 +48,7 @@ class SIMULATION():
 
             self.form.position_input()
             self.form.target_tracking_input()
-            # self.form.collision_input()
+            self.form.collision_input()
 
 
             #form.nodal_input()
@@ -57,12 +59,14 @@ class SIMULATION():
             self.form.update_target_position()
 
             self.form.check_active_nodes()
+            # self.form.leader_selection()
 
             self.target_pos[:, t] = self.form.target[:2, 0]
             self.node_pos[:, :, t] = self.form.nodes[:2, :]
             self.agent_pos[:, :, t] = self.form.agents[:2, :]
 
             self.active_nodes[:, t] = sum(self.form.nodes[6, :])/self.form.N
+            # print(sum(self.form.nodes[6, :])/self.form.N)
 
             self.target_dist[:, t] = np.linalg.norm(self.agent_pos[:2, self.form.leader, t] - self.target_pos[:2, t], axis=0)
             self.node_dist[:, t * self.form.N:(t+1)*self.form.N] = distance.cdist(np.transpose(self.form.agents[:2, :]),  np.transpose(self.form.nodes[:2, :]), 'euclidean')
@@ -70,7 +74,7 @@ class SIMULATION():
 
             # print(self.target_dist[:, t])
 
-    def run_animation(self, save):
+    def run_animation(self, save, fn):
         writer = animation.FFMpegWriter()
 
         fig = plt.figure()
@@ -105,7 +109,6 @@ class SIMULATION():
 
         if save is True:
             # fn = 'formation_' + str(datetime.datetime.now()) + '.avi'
-            fn = 'formation.avi'
             anim.save(fn, writer=writer)
 
         plt.show()
@@ -120,14 +123,14 @@ if __name__ == '__main__':
 
     N = c.N
     # initialPos = np.random.randint(-10, 10, (2, N))
-    initialPos = np.asarray([[0, -20, 20, 0, 0], [0, 0, 0, 20, -20]])
+    initialPos = np.asarray([[0, -40, -80, 0, 0], [0, 0, 0, 40, -40]])
 
     target = np.zeros((6, 1))
     # initial target position
-    target[0, 0] = 100
+    target[0, 0] = 200
     target[1, 0] = 0
     # initial target input
-    target[4, 0] = 2
+    target[4, 0] = 1
 
 
 
@@ -138,4 +141,4 @@ if __name__ == '__main__':
     form = FORMATION(N, initialPos, target, k=k)
     sim = SIMULATION(form, c.timeSteps)
 
-    sim.run(pb=False, save=False)
+    sim.run(pb=False, save=True, fn='NewBest.avi')

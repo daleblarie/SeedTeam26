@@ -16,8 +16,10 @@ class POPULATION:
                 self.p[i].Print()
         print()
 
-    def Initilize(self):
+    def Initilize(self, initialK=None):
         for i in range(self.popSize):
+            if i == 0:
+                self.p[i] = INDIVIDUAL(i, k=initialK)
             self.p[i] = INDIVIDUAL(i)
 
     def Evaluate(self,pb):
@@ -82,7 +84,8 @@ class POPULATION:
             fileName = 'Formation_bestC0nstants.txt'
             json_file = open(fileName, 'a')
             txt = {'TimeStamp': str(datetime.datetime.now()),
-                   'k': self.p[best].k}
+                   'k': self.p[best].k,
+                   'Fitness': self.p[best].fitness}
                    # 'simInfor': {'numGens': c.numGens,
                    #              'popSize': c.popSize,
                    #              'N': c.N,

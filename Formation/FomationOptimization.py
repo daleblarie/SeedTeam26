@@ -7,11 +7,15 @@ import math
 
 
 class INDIVIDUAL:
-    def __init__(self, i):
+    def __init__(self, i, k=None):
         self.ID = i
-        self.k = {0: [0, 0], 1: [0, 0], 2: [0, 0, 0], 3: [0, 0, 0], 4: [0, 0, 0]}
-        for i in self.k:
-            self.k[i] = list(np.random.rand(len(self.k[i])) * 2 - 1)
+
+        if k is None:
+            self.k = {0: [0, 0], 1: [0, 0], 2: [0, 0, 0], 3: [0, 0, 0], 4: [0, 0, 0]}
+            for i in self.k:
+                self.k[i] = list(np.random.rand(len(self.k[i])) * 2 - 1)
+        else:
+            self.k = k
 
         self.fitness = 0
         self.sim = None
@@ -23,7 +27,7 @@ class INDIVIDUAL:
         N = c.N
         # initialPos = np.random.randint(-10, 10, (2, N))
         # print(self.k)
-        initialPos = np.asarray([[0, -20, 20, 0, 0], [0, 0, 0, 20, -20]])
+        initialPos = np.asarray([[0, -40, -80, 0, 0], [0, 0, 0, 40, -40]])
 
         self.form = FORMATION(N, initialPos, c.target, k=self.k)
 
@@ -51,7 +55,7 @@ class INDIVIDUAL:
         all_active = sum(self.sim.active_nodes[0, :])/c.timeSteps
         # print(self.form.nodes[6, :])
 
-        end_active = sum(self.form.nodes[6, :])/c.N
+        end_active = self.sim.active_nodes[0, -1]
         if end_active != 1:
             end_active = 0
 
@@ -69,20 +73,21 @@ class INDIVIDUAL:
 
         # print(nearTarget, self.sim.target_dist[0, -1])
 
-        agent_close = np.where(self.sim.agent_dist < self.form.r_r)
+        agent_close = np.where(self.sim.agent_dist > self.form.r_r)
         # too_far = np.where(self.sim.agent_dist > 100)
         # nearAgent = sum(self.sim.agent_dist[too_close]) /len(too_close)
-        nearAgent = ((len(agent_close[0]) - self.sim.agent_dist.shape[1])/(self.sim.agent_dist.size - self.sim.agent_dist.shape[1])) + 1
-
-        if nearAgent == 0:
-            nearAgent -= 1.0
+        # nearAgent = ((len(agent_close[0]) - self.sim.agent_dist.shape[1])/(self.sim.agent_dist.size - self.sim.agent_dist.shape[1]))
+        nearAgent = len(agent_close[0]) / (self.sim.agent_dist.size - self.sim.agent_dist.shape[1])
+        bonus = 0
+        if nearAgent == 1 and end_active == 1:
+            bonus = 1.0
 
         # print(nearAgent)
         # print('Form',self.sim.target_dist)
         # print(nearNode, all_active, self.sim.active_nodes[0, -1], nearAgent)
 
-        # self.fitness = (nearNode)  * (all_active)  * (2 - nearAgent) + end_active#* (1 - nearTarget)
-        self.fitness = (nearNode) * (all_active) * (1-abs(nearTarget-self.form.r_tau)) * (2 - nearAgent) + end_active
+        # self.fitness = (nearNode)  * (all_active) * (nearAgent) + bonus #* (1 - nearTarget)
+        self.fitness = (nearNode) * (all_active) * (1-abs(nearTarget-self.form.r_tau)) * (nearAgent) + bonus
         # self.fitness = (1-abs(nearTarget-self.form.r_tau))
 
         del self.form
