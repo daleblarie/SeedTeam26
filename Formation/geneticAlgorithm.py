@@ -14,6 +14,7 @@ k = {int(k): v for k, v in k['k'].items()}
 
 
 parents = POPULATION(c.popSize)
+print(k)
 parents.Initilize(k)
 parents.Evaluate(pb=True)
 # # exit()

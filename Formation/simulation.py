@@ -141,4 +141,4 @@ if __name__ == '__main__':
     form = FORMATION(N, initialPos, target, k=k)
     sim = SIMULATION(form, c.timeSteps)
 
-    sim.run(pb=False, save=True, fn='NewBest.avi')
+    sim.run(pb=False, save=True) #, fn='NewBest.avi')
